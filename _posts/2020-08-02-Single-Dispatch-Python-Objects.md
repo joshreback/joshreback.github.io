@@ -24,7 +24,8 @@ If you search around for how to compute the memory usage of a Python object, you
 > Only the memory consumption directly attributed to the object is accounted for, not the memory consumption of objects it refers to.
 
 Consider this example:
-```
+
+```python
 In [1]: import sys
 
 In [2]: sys.getsizeof(list(range(1000)))
@@ -52,11 +53,14 @@ Let's step through how the memory usage for a dictionary would be computed:
 1. Some code imports the `dask.sizeof` module. 
 2. The top-level code in the module gets run, including the various calls to `@sizeof.register(<type>)`. For the dictionary example, `@sizeof.register(dict)` gets run. 
 3. The `register` method, defined [here](https://github.com/dask/dask/blob/master/dask/utils.py#L451) then populates an internal dictionary, stored in `self._lookup` that maps the argument to the `register` function to the function object. So after the call to , the `self._lookup` dictionary in the `Dispatch` object will contain the following entry: 
-```
+
+```python
 {
 	'dict': <function that computes sizeof for dict>
 }
+
 ```
+
 4. Later on, some code calls `sizeof(<dictionary object>)`, which calls `__call__` in the `Dispatch` object, which then looks up the previously registered function implementation for the type of the object, and runs that code. 
 
 The "narrative" version of this code is probably more complicated to follow than the code itself. Basically just populate an internal dictionary that maps types to implementations, and when you call the "dispatched" method later on, figure out the type, which you then use to look up the implementation, which you can then run.
@@ -73,11 +77,13 @@ I think Dask has an elegant solution to this problem that relies on lazily regis
 1. Some code imports the `dask.sizeof` module. 
 2. The top-level code in `dask.sizeof.py` gets run, including the various calls to `@sizeof.register_lazy`. For the numpy array example, `@sizeof.register_lazy("numpy")`. Note: the argument to `register_lazy` is just a string -- the numpy package hasn't been imported yet (if it had, it would have resulted in an `ImportError` for users who don't have numpy installed).
 3. This calls the `register_lazy` method in the `Dispatch` object, which populates a separate internal dictionary: `self._lazy`. After this call to `register_lazy`, the `self._lazy` dict should contain the following mapping: 
-```
+
+```python
 {
-	"numpy": [function object representing this code](https://github.com/dask/dask/blob/master/dask/sizeof.py#L82-L89)
+	"numpy": <pre><a href="https://github.com/dask/dask/blob/master/dask/sizeof.py#L82-L89">function object representing this code</a></pre>
 }
 ```
+
 4. Later on, some code calls `sizeof(<numpy array object>)`.
 5. As before, this calls into the `dispatch` method. Except this time, when it looks up the implementation in the `self._lookup` dictionary, it will raise a `KeyError`, which is expected, because `self._lookup` doesn't contain a key for an `ndarray`.
 6. The code then determines the top-level module for the argument. For a numpy array object, this should be "numpy". It will then pop that implementation from the `_lazy` dict, which returns the function object from step 3. 
