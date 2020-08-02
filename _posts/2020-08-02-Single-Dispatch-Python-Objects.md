@@ -10,12 +10,15 @@ In reading this post, my hope is that you will understand:
 
 ----
 
+<br/>
+
 ### What is Single Dispatch 
 
 Single Dispatch is when the method implementation is selected based on the type or class of a single argument. There are other kinds of dispatch - multiple dispatch, pattern matching, predicate dispatch - which are increasingly generalized riffs on the same theme: pick a method to call based on the thing or things you're calling the method on. 
 
 If all that sounds a little abstract, we'll see an example soon that should clarify.
 
+<br/>
 
 ### Computing the Memory Usage of a Python Object
 
@@ -41,6 +44,7 @@ Chances are, when you are interested in "the memory usage of an object", you hav
 
 When dealing with a primitive type, `sys.getsizeof` will work just fine. But if you want a generic method to compute the size of any object, that method will need to have different implementations depending on the type of the object, because it'll need to know which objects are contained in the original object, and it will need to know to compute those objects' memoryto get an accurate sum. Since the implementation is type-dependent, we have a perfect use case for single-dispatch.
 
+<br/>
 
 ### Dask's Implementation: A Simple Case 
 
@@ -91,6 +95,7 @@ I think Dask has an elegant solution to this problem that relies on lazily regis
 8. Finally, the `dispatch` method is called again with the same argument (the type of the numpy array object). During the next pass through this method, we should not `KeyError` when looking up an implementation for a numpy array, since it was just registered in step 7. 
 
 Again, the narrative, step-by-step description of this code might be more complicated than the code itself, but laboring through it in this fashion certainly helps me understand it better. The gist is this: when registering sizeof implementations for objects in packages that may not be installed, first register a package-level implementation. If some code later on tries to call `sizeof` with an object contained in that package, you know the package is installed, so you can register the `sizeof` method for the object.
+
 
 ### Wrapping Up
 
