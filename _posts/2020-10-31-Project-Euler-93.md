@@ -29,14 +29,14 @@ And, excitingly for us, yielded only 126 possible combinations. This seemed like
 
 Alright, so far we have some code to enumerate all the possible combinations of a, b, c, and d. Next, we need to figure out how to look at a particular combination of numbers and figure out all the possible ways that a particular set of four digits can be arithmetically combined. In my opinion, this part was the primary challenge of this problem because there are so many different ways to approach it. 
 
-For our group, what made this part especially difficult to think about was how to treat the use of parentheses. The examples in the original problem statement show multiple ways of using parentheses...The first example shows nesting parentheses within each other. The second example wraps parentheses an arithmetic combination of three digits, the third wraps parens around an arithmetic combo of two digits. This would have you believe that you need to treat the use of parentheses as a first class operation, similar in stature to addition, subtraction, multiplication, and division. This proved to be an unproductive rabbit hole. If you treat parentheses as a first class operation, then 1 + 2 would need to be treated separately from (1) + 2, which is separate from (1 + 2), which is separate from ((1 + 2)). As you can see, parentheses can be infinitely applied without actually changing the result, and encoding this intelligence into our program seemed complicated. We thought a simpler solution had to be lurking somewhere...
+For our group, what made this part especially difficult to think about was how to treat the use of parentheses. The examples in the original problem statement show multiple ways of using parentheses...The first example nests parentheses within each other. The second example wraps parentheses around an arithmetic combination of three digits, the third wraps parens around an arithmetic combo of two digits. This would have you believe that you need to treat the use of parentheses as a first class operation, similar in stature to addition, subtraction, multiplication, and division. However, this proved to be an unproductive rabbit hole. If you treat parentheses as a first class operation, then 1 + 2 would need to be treated separately from (1) + 2, which is separate from (1 + 2), which is separate from ((1 + 2)). As you can see, parentheses can be infinitely applied without actually changing the result, and encoding the intelligence around which application of parentheses are actually "useful" into our program seemed complicated. We thought a simpler solution had to be lurking somewhere...
 
-So we resolved to not think of parenthese as a separate operation. Parens are just a means of ordering operations, and we should be able to obtain the _effect_ of parentheses without actually needing to use them as a separate operation. Before we actually get too far down that line of thinking, let's try to loosely verify that it is correct. One way to do that would be to write out any arithmetic combination of four numbers in a sort of "standard-form" that will enable us to think of parentheses _implicitly_ rather than _explicitly_. I'll reproduce the examples from the problem statement in a standard form below:
+So we resolved to not think of parentheses as a separate operation. Parens are just a means of ordering operations, and we should be able to obtain the _effect_ of parentheses without actually needing to think of them as a distinct operation. Before we actually get too far down that line of thinking, let's try to loosely verify that it is correct. One way to do that would be to write out any arithmetic combination of four numbers in a sort of "standard-form" that will enable us to think of parentheses _implicitly_ rather than _explicitly_. I'll reproduce the examples from the problem statement in such a standard form below:
 
-8 = (((1) + 3) * 4) / 2
-14 = (((1) / 2) + 3) * 4
-19 = (((2) + 3) * 4) - 1
-36 = (((2) + 1) * 4) * 3
+- 8 = (((1) + 3) * 4) / 2
+- 14 = (((1) / 2) + 3) * 4
+- 19 = (((2) + 3) * 4) - 1
+- 36 = (((2) + 1) * 4) * 3
 
 Written this way, hopefully you can see that you can combine any four numbers in a standard set of steps: 
 - start with a number
@@ -44,11 +44,11 @@ Written this way, hopefully you can see that you can combine any four numbers in
 - then combine the next number
 - then the next number
 
-You never have to think, "well I could put the parentheses around two digits, or around 3, or I could apply them to an already parenthesized expression". No, here we have a standard sequence of steps - an algorithm - for how to arithmetically combine four digits such that we never have to explicitly consider when to use parentheses.
+You never have to think, "well I could put the parentheses around two digits, or around 3, or I could apply them to an already parenthesized expression". No, here we have a standard sequence of steps - an algorithm - for how to arithmetically combine four digits such that we never have to explicitly consider when to use parentheses. The use of parentheses is implicit if you follow the above algorithm, and any arithmetic combination of four digits that has a non-standard use of parentheses (e.g, around 3 digits, or around an already parenthesized expression) should be able to be rewritten in this standard form.
 
 Hopefully that served to convince you that it _is_ possible to enumerate all arithmetic combinations of a particular set of four digits _without_ needing to encode a bunch of complicated rule-based logic for parentheses. Now let's build to that in incremental steps. 
 
-The core task of the algorithm is to enumerate all possible values that can be obtained by arithmeticically combining numbers. So, we'll need a function that can do that for two inputs. Below is a simple utility function:
+The core task of the algorithm is to enumerate all possible values that can be obtained by arithmetically combining numbers. So, we'll need a function that can do that for two inputs. Below is a simple utility function:
 
 ```python
 from fractions import Fraction as Fr
@@ -72,7 +72,7 @@ This is tough to think about all at once, so let's think of what one solid step 
 	- a <combo> c, {b, d} uncombined
 	- a <combo> d, {b, c} uncombined
 
-It looks like we can write a function to do this. We want to move one value at a time out of the uncombined set and arithmetically combine it with the current "temporary" value. This function needs to accept both a temporary value (something to combine the uncombined integers with) and a set of uncombined value. Let's consider this grouping of temporary value and set of uncombined numbers to be one entity, just for ease of passing things around. We'll call this function "get_children" for reasons that will soon become apparent. Here's the code:
+It looks like we can write a function to do this. We want to move one value at a time out of the uncombined set and arithmetically combine it with the current "temporary" value. This function needs to accept both a temporary value (something to combine the uncombined integers with) and a set of uncombined values. Let's consider this grouping of temporary value and set of uncombined numbers to be one entity, just for ease of passing things around. We'll call this function "get_children" for reasons that will soon become apparent. Here's the code:
 
 ```python
 def get_children(potential_value):
@@ -87,7 +87,7 @@ def get_children(potential_value):
   return children
 ```
 
-Our goal in calling this function is to move one item out of the uncombined set and have it arithmetically be combined with the value we're building up. Ultimately, we're interested in the values where _all_ values where the uncombined set is empty -- that means that a, b, c, and d have all been arithmetically combined to produce a final value. So, we need to repeatedly call this `get_children` function until the uncombined set is empty. To figure out how we need to call this function, it may help to think of the input/outputs to the function in the following way: 
+Our goal in calling this function is to move one item out of the uncombined set and have it arithmetically be combined with the value we're building up. Ultimately, we're interested in this function's outputs when the uncombined set is empty -- that means that a, b, c, and d have all been arithmetically combined to produce a final value. So, we need to repeatedly call this `get_children` function until the uncombined set is empty. To figure out how we need to call this function, it may help to think of the input/outputs to the function in the following way: 
 ![Tree View](/images/TreeView.png "Tree View")
 
 Essentially, we are doing a Breadth-First style traversal of the space of possible values. Ultimately, we're interested in the leaves of this tree, because each leaf represents a particular arithmetic combination of values in which all of a, b, c, and d have been combined. The non-leaf nodes are the ones where there are one or more uncombined values. Our "get_children" function moves us from a node to each of its child nodes. The code below serves to repeatedly call our `get_children` function to produce all possible arithmetic combinations of a, b, c, and d:
@@ -131,4 +131,8 @@ def main():
   print(f"max_n: {max_n}, ans: {ans}")
 ```
 
-If you run the full listing in its entirety, you should see that the combination of 1, 2, 5, 8 yields a maximum n value of 51. 
+If you run the ![](https://gist.github.com/joshreback/0851ec802c0cdd7710496439eb3c545e) in its entirety, you should see that the combination of 1, 2, 5, 8 yields a maximum n value of 51. 
+
+--
+
+I do think there are many ways to solve this problem, and I've noticed a hallmark of good problem solvers is that they'll often revisit questions they've already and answered. I think this is because it's the ultimate challenge in mental flexibility -- you have to actively ignore a route you know will work. In any case, I hope to make some time to re-solve this question in the future.
