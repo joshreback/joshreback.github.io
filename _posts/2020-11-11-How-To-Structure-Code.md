@@ -80,6 +80,8 @@ def my_method(records_df):
 
 This is an easy method to test. It is also trivial to add tests that target different corner cases…All I have to do is construct an input dataframe of records. This requires no patched external services and no mock objects. And in reading the tests for this method, there is no mental overhead. All you need to keep track of, as the reader, is what data goes in and what data is returned. 
 
+<br />
+
 ### The Big Ideas
 
 This was originally an unguided process, but it turns out there are some big ideas about software development here. The essential idea has been called different things by different smart people - Functional Core / Imperative Shell by Gary Bernhardt, The Clean Architecture by Bob Martin (“Uncle Bob”) - but it generally centers around structuring code in the way outlined above. All of the I/O, or any code that must hold onto state, should be pushed to the periphery of your application. The “core” should consist of functional methods - functional meaning the method holds no state and therefore the only information you need to fully reason about the method’s behavior are its inputs and outputs. So in my example above, V3 of “my_method” is now a functional method - it takes a dataframe as input and returns a dataframe as output. There should be many of these types of methods at the core of the application with lots of accompanying unit tests. The calling code would be responsible for retrieving the records from the database and passing those records to “my_method”. 
@@ -87,6 +89,8 @@ This was originally an unguided process, but it turns out there are some big ide
 Structuring your code in this way makes it very easy and natural to throw lots of unit tests at the functional methods in the core of the application. There should also be a few integration tests (which would likely use a live database for testing) to ensure that the parts all fit together properly, but not to test the business logic and corner cases.
 
 A system constructed in this way is also very easily changeable, which is a first class concern in application development. Let’s say I need to switch from using a SQLite database to using a MySQL database. I would need to change my_method V1, as well as all other parts of my application where I connect to a database. If I don’t have a discipline of handling I/O at the periphery of my application, I’ll need to go track down all the places where I connect to SQLite, which will probably occur at different levels of abstraction. I’ll also likely need to update my tests unless there is some other indirection between my_method and the database connection object. Applications are generally not unique because of their database technology, or because of any technology choice for that matter, so changes to the database technology should not ripple throughout the entire codebase. Rather, applications are unique because of how they handle and process the data that is available to them. Therefore, applications should be structured and tested in a way that reflects the primacy of the logic around how data is handled rather than where it is stored.
+
+<br/>
 
 ### Final Thoughts
 
