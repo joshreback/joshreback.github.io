@@ -131,7 +131,7 @@ def main():
   print(f"max_n: {max_n}, ans: {ans}")
 ```
 
-If you run the ![](https://gist.github.com/joshreback/0851ec802c0cdd7710496439eb3c545e) in its entirety, you should see that the combination of 1, 2, 5, 8 yields a maximum n value of 51. 
+If you run the ![code](https://gist.github.com/joshreback/0851ec802c0cdd7710496439eb3c545e) in its entirety, you should see that the combination of 1, 2, 5, 8 yields a maximum n value of 51. 
 
 --
 
