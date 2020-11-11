@@ -98,6 +98,6 @@ This was a very enriching learning experience because The Big Question here - ho
 
 If you want to learn more about these ideas, I recommend the following resources (all of which helped to shape my thinking):
 
-- ![Functional Core Imperative Shell](https://www.destroyallsoftware.com/screencasts/catalog/functional-core-imperative-shell) - the original screencast from Gary Bernhardt introducing the ideas behind the Functional Core Imperative Shell. Like all Destroy All Software content, it's short, dense (in a good way), and to the point.
-- ![The Clean Architecture in Python](https://pyvideo.org/pyohio-2014/the-clean-architecture-in-python.html) - A very clear and comprehensive explanation of the Clean Architecture with Python code snippets. Also includes a lot of thoughtful discussion on implications for testing.
-- ![The Grand Unified Theory of Software Architecture](https://danuker.go.ro/the-grand-unified-theory-of-software-architecture.html) - A very well-written and easy to follow explainer article on the Clean Architecture in Python video.
+- [Functional Core Imperative Shell](https://www.destroyallsoftware.com/screencasts/catalog/functional-core-imperative-shell) - the original screencast from Gary Bernhardt introducing the ideas behind the Functional Core Imperative Shell. Like all Destroy All Software content, it's short, dense (in a good way), and to the point.
+- [The Clean Architecture in Python](https://pyvideo.org/pyohio-2014/the-clean-architecture-in-python.html) - A very clear and comprehensive explanation of the Clean Architecture with Python code snippets. Also includes a lot of thoughtful discussion on implications for testing.
+- [The Grand Unified Theory of Software Architecture](https://danuker.go.ro/the-grand-unified-theory-of-software-architecture.html) - A very well-written and easy to follow explainer article on the Clean Architecture in Python video.
